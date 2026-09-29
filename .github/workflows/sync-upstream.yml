@@ -12,10 +12,10 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout upstream master
+      - name: Checkout fork master
         uses: actions/checkout@v4
         with:
-          repository: rueificebw/zaimanhua-auto-chick-in
+          repository: 135ty/zaimanhua-auto-chick-in
           ref: master
           token: ${{ secrets.GH_SYNC_TOKEN }}
           fetch-depth: 1
