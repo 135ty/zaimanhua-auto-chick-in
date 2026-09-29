@@ -18,7 +18,7 @@ jobs:
           repository: 135ty/zaimanhua-auto-chick-in
           ref: master
           token: ${{ secrets.GH_SYNC_TOKEN }}
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Configure git
         run: |
