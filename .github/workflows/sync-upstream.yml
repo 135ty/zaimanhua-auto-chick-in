@@ -1,9 +1,9 @@
 name: Sync upstream
 
 on:
-  # 北京时间每周日凌晨 2:00（UTC 周六 18:00）
+  # 北京时间每天 06:00（UTC 22:00），比 daily_task 早 36 分钟，确保 fork master 已是上游最新代码
   schedule:
-    - cron: '0 18 * * 6'
+    - cron: '0 22 * * *'
   workflow_dispatch:
 
 jobs:
