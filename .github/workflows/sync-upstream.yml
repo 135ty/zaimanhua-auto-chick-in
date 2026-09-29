@@ -1,0 +1,52 @@
+name: Sync upstream
+
+on:
+  # 北京时间每周日凌晨 2:00（UTC 周六 18:00）
+  schedule:
+    - cron: '0 18 * * 6'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout upstream master
+        uses: actions/checkout@v4
+        with:
+          repository: rueificebw/zaimanhua-auto-chick-in
+          ref: master
+          token: ${{ secrets.GH_SYNC_TOKEN }}
+          fetch-depth: 1
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git remote add upstream https://github.com/rueificebw/zaimanhua-auto-chick-in.git
+          git fetch upstream master
+          echo "--- upstream HEAD ---"
+          git log upstream/master -1 --oneline
+
+      - name: Merge and push to fork
+        run: |
+          git merge upstream/master --no-ff -m "chore: sync upstream master" || {
+            echo "::error::合并冲突，需要人工介入"
+            exit 1
+          }
+          git push origin master
+
+      - name: Notify on failure (serverchan)
+        if: failure() && env.SCKEY != ''
+        env:
+          SCKEY: ${{ secrets.SCKEY }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -n "$SCKEY" ]; then
+            curl -s -X POST "https://sctapi.ftqq.com/${SCKEY}.send" \
+              --data-urlencode "title=zaimanhua 上游同步失败" \
+              --data-urlencode "desp=sync workflow 合并冲突或失败，请人工介入：${RUN_URL}" || true
+          else
+            echo "WARN: SCKEY 未配置，跳过通知"
+          fi
