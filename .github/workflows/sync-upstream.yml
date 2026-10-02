@@ -10,6 +10,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # 用内置 GITHUB_TOKEN（默认含 workflow scope），避免自建 PAT 缺 scope 导致
+    # 上游改 workflow 文件时 push 被拒
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout fork master
@@ -17,7 +21,6 @@ jobs:
         with:
           repository: 135ty/zaimanhua-auto-chick-in
           ref: master
-          token: ${{ secrets.GH_SYNC_TOKEN }}
           fetch-depth: 0
 
       - name: Configure git
