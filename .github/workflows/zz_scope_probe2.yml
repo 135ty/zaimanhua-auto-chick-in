@@ -1,0 +1,37 @@
+name: ZZ Scope Probe 2 (temporary)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout with the same PAT the sync workflow uses
+        uses: actions/checkout@v4
+        with:
+          repository: 135ty/zaimanhua-auto-chick-in
+          ref: master
+          token: ${{ secrets.GH_SYNC_TOKEN }}
+          fetch-depth: 0
+
+      - name: Create a NEW workflow file and push via that PAT
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          printf '%s\n' \
+            'name: ZZ Probe Created By GH_SYNC_TOKEN' \
+            'on:' \
+            '  workflow_dispatch:' \
+            'jobs:' \
+            '  noop:' \
+            '    runs-on: ubuntu-latest' \
+            '    steps:' \
+            '      - run: echo probe' \
+            > .github/workflows/zz_probe_created_by_token.yml
+          git add .github/workflows/zz_probe_created_by_token.yml
+          git commit -m "probe: create workflow file via GH_SYNC_TOKEN"
+          git push origin master
+          echo "PROBE_PUSH_OK"
