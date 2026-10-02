@@ -1,0 +1,41 @@
+name: ZZ Scope Probe (temporary)
+
+# 一次性验证：用内置 GITHUB_TOKEN 能否创建/推送 .github/workflows 下的新文件
+# 验证完即删除
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Create a new workflow file via GITHUB_TOKEN and push
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          printf '%s\n' \
+            'name: ZZ Probe Created By GITHUB_TOKEN' \
+            'on:' \
+            '  workflow_dispatch:' \
+            'jobs:' \
+            '  noop:' \
+            '    runs-on: ubuntu-latest' \
+            '    steps:' \
+            '      - run: echo probe' \
+            > .github/workflows/zz_probe_created_by_gh_token.yml
+          git add .github/workflows/zz_probe_created_by_gh_token.yml
+          git commit -m "probe: create workflow file using default GITHUB_TOKEN"
+          git push origin master
+          echo "PROBE_PUSH_OK"
