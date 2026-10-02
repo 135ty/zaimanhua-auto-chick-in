@@ -1,8 +1,0 @@
-name: ZZ Probe Created By GH_SYNC_TOKEN
-on:
-  workflow_dispatch:
-jobs:
-  noop:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo probe
